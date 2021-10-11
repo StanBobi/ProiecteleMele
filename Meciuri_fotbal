@@ -1,0 +1,273 @@
+main.cpp
+Who has access
+Not shared
+System properties
+Type
+Text
+Size
+6 KB
+Storage used
+6 KB
+Location
+Meciuri_fotbal
+Owner
+me
+Modified
+Jul 31, 2020 by me
+Opened
+7:19 PM by me
+Created
+Feb 15, 2021 with Google Drive Web
+Add a description
+Viewers can download
+#include <iostream>
+#include <windows.h>
+#include <mysql.h>
+#include <sstream>
+#include <string.h>
+
+using namespace std;
+
+void scor_random(int v[20]);
+
+
+void afisare_clasament()
+{
+   stringstream ss;
+   int nr=1;
+   MYSQL_ROW row;
+   MYSQL_RES* res;
+
+
+   MYSQL* conn;
+    conn = mysql_init(0);
+    conn = mysql_real_connect(conn,"192.168.0.100","admin","1234","abcd",0,NULL,0);
+
+   if(conn){
+    int qstate = mysql_query(conn, "SELECT * FROM clasament ORDER BY Puncte DESC, GA DESC;");
+
+    if(!qstate){
+            res = mysql_store_result(conn);
+
+         while(row = mysql_fetch_row(res) )
+         {
+             if(strcmp(row[1],"Etapa")!=0) {
+            cout<<nr<<". "<<row[1]<<" P : "<<row[2]<<" V : "<<row[3]<<" E : "<<row[4]<<" I : "<<row[5]<<" MJ : "<<row[6]<<" GA : "<<row[7]<<" GI : "<<row[8]<<" GP : "<<row[9]<<endl<<endl;
+            nr++;
+            }
+         }
+   }
+  }
+}
+
+int mesaj1()
+{
+    int opt;
+    cout<<"0-Iesire"<<endl<<"1-Afisare meciuri actuale"<<endl<<"2-Clasament"<<endl<<"Optiunea dumneavoastra : ";
+    cin >> opt;
+    cout<<endl;
+    return opt;
+}
+
+void victorie(string nume,int x,int y)
+{
+   int qstate = 0;
+
+   stringstream ss;
+   MYSQL* conn;
+    conn = mysql_init(0);
+    conn = mysql_real_connect(conn,"192.168.0.100","admin","1234","abcd",0,NULL,0);
+
+     ss << "UPDATE clasament SET Victorii = Victorii+1, Puncte = Puncte+3, GA= GA + "<<x-y<<", GI = GI + "<<x<<", GP = GP + "<<y<<", Meciuri_Jucate = Meciuri_Jucate +1 WHERE Nume = '" << nume<<"';" ;
+
+        string query = ss.str();
+
+        const char* q = query.c_str();
+        qstate = mysql_query(conn, q);
+}
+
+void infrangere(string nume,int x,int y)
+{
+    int qstate = 0;
+    MYSQL* conn;
+    conn = mysql_init(0);
+    conn = mysql_real_connect(conn,"192.168.0.100","admin","1234","abcd",0,NULL,0);
+   stringstream ss;
+
+ss << "UPDATE clasament SET Infrangeri = Infrangeri + 1, GA= GA + "<<x-y<<", GI = GI + "<<x<<", GP = GP + "<<y<<", Meciuri_Jucate = Meciuri_Jucate +1 WHERE Nume = '" << nume<<"';" ;
+
+        string query = ss.str();
+
+        const char* q = query.c_str();
+        qstate = mysql_query(conn, q);
+}
+
+void egal(string nume,int x,int y)
+{
+    int qstate = 0;
+
+   stringstream ss;
+   MYSQL* conn;
+    conn = mysql_init(0);
+    conn = mysql_real_connect(conn,"192.168.0.100","admin","1234","abcd",0,NULL,0);
+
+    ss << "UPDATE clasament SET Egaluri = Egaluri + 1, Puncte = Puncte +1 ,GA= GA + "<<x-y<<", GI = GI + "<<x<<", GP = GP + "<<y<<", Meciuri_Jucate = Meciuri_Jucate +1 WHERE Nume = '"<<nume<<"';";
+
+        string query = ss.str();
+
+        const char* q = query.c_str();
+        qstate = mysql_query(conn, q);
+
+}
+
+
+void conectare_Mesaj()
+{
+    MYSQL* conn;
+    conn = mysql_init(0);
+    conn = mysql_real_connect(conn,"192.168.0.100","admin","1234","abcd",0,NULL,0);
+
+    if(conn){
+        cout << "Te-ai conectat cu succes"<<endl<<endl;
+    }else{
+    cout<<"Eroare la conectare"<<endl<<endl;
+    exit(0);
+    }
+}
+
+void reset_clasament()
+{
+    MYSQL_ROW row;
+   MYSQL_RES* res;
+
+   MYSQL* conn;
+    conn = mysql_init(0);
+    conn = mysql_real_connect(conn,"192.168.0.100","admin","1234","abcd",0,NULL,0);
+
+    int qstate=0;
+    stringstream ss;
+
+  ss << "UPDATE clasament SET Puncte=0,Victorii=0,Egaluri=0,Infrangeri=0,GA=0,Meciuri_Jucate=0,GI=0,GP=0" ;
+        string query = ss.str();
+
+        const char* q = query.c_str();
+        qstate = mysql_query(conn, q);
+
+        qstate=0;
+}
+
+void afisare_scor_etapa(int v[20])
+{
+   stringstream ss;
+
+   MYSQL_ROW row;
+   MYSQL_RES* res;
+
+   MYSQL* conn;
+    conn = mysql_init(0);
+    conn = mysql_real_connect(conn,"192.168.0.100","admin","1234","abcd",0,NULL,0);
+
+    string y,x;
+
+   if(conn){
+    int qstate = mysql_query(conn, "SELECT Loc FROM clasament WHERE Nume = 'Etapa'");
+
+    if(!qstate){
+            res = mysql_store_result(conn);
+
+         while(row = mysql_fetch_row(res) )
+         {
+             x=row[0];
+     }
+   }
+   }
+   y="20";
+
+   if(x!=y)
+    {
+    cout<<"Etapa : "<<x<<endl<<"-----------------------"<<endl<<endl;
+
+   if(conn){
+    int qstate = mysql_query(conn, "SELECT * FROM meciuri");
+
+    if(!qstate){
+            res = mysql_store_result(conn);
+
+    int k=0;
+
+    while(row = mysql_fetch_row(res) )
+    {
+       if(x==row[0]) {cout<<"Etapa a : "<<row[0]<<' '<<row[1]<<" vs "<<row[2]<<'('<<v[k]<<'-'<<v[k+1]<<')'<<endl<<endl;
+                      if(v[k]>v[k+1]) {victorie(row[1],v[k],v[k+1]);
+                                        infrangere(row[2],v[k+1],v[k]);}
+                       else if(v[k]==v[k+1]) {egal(row[1],v[k],v[k+1]);
+                                              egal(row[2],v[k+1],v[k]);}
+                        else{victorie(row[2],v[k+1],v[k]);
+                             infrangere(row[1],v[k],v[k+1]);}
+                    k=k+2;
+       }
+
+    }
+
+   }
+  }
+
+
+
+ int qstate=0;
+
+   ss << "UPDATE clasament SET Loc = Loc+1 WHERE Nume = 'Etapa'" ;
+
+        string query = ss.str();
+
+        const char* q = query.c_str();
+        qstate = mysql_query(conn, q);
+
+    }
+
+    else {cout << endl << "Finalul tururilor"<<endl<<endl;
+         int qstate=0;
+
+   ss << "UPDATE clasament SET Loc =1 WHERE Nume = 'Etapa'" ;
+        string query = ss.str();
+
+        const char* q = query.c_str();
+        qstate = mysql_query(conn, q);
+
+         reset_clasament();
+         }
+}
+
+
+
+int main()
+{
+    int v[20],opt;
+
+   conectare_Mesaj();
+
+   do{
+
+    opt=mesaj1();
+
+   switch(opt)
+   {
+
+   case 1 : {
+             scor_random(v);
+             afisare_scor_etapa(v);
+              break;
+              }
+
+   case 2 : {afisare_clasament();
+             break;}
+
+   case 0 : {exit(0);
+            break;}
+
+   }
+
+   }while(opt!=0);
+
+    return 0;
+}
